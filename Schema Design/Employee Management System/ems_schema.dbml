@@ -1,0 +1,249 @@
+TABLE status {
+  status_id integer [pk]
+  status varchar
+}
+
+TABLE employment_types {
+  employment_type_id integer [pk]
+  employment_type_name varchar
+}
+
+TABLE work_types {
+  work_type_id integer [pk]
+  work_type_name varchar
+}
+
+TABLE leave_types {
+  leave_type_id integer [pk]
+  leave_type varchar
+}
+
+TABLE approval_status {
+  approval_status_id integer [pk]
+  approval_status_name varchar
+}
+
+TABLE training_status {
+  status_id integer [pk]
+  description varchar
+}
+
+TABLE fnf_status {
+  fnf_status_id integer [pk]
+  fnf_description varchar
+}
+
+TABLE proficiency_levels {
+  proficiency_level_id integer [pk]
+  proficiency_level varchar
+}
+
+TABLE vendors {
+  vendor_id integer [pk]
+  vendor_name varchar
+}
+
+TABLE systems {
+  system_id integer [pk]
+  system_name varchar
+}
+
+TABLE skills {
+  skill_id integer [pk]
+  skill_name varchar
+}
+
+TABLE roles {
+  role_id integer [pk]
+  name varchar
+}
+
+TABLE locations {
+  location_id integer [pk]
+  laddress varchar
+  timezone varchar
+}
+
+TABLE document_types {
+  document_type_id integer [pk]
+  document_name varchar
+}
+
+TABLE trainings {
+  training_id integer [pk]
+  training_name varchar
+  validity_months integer
+  is_mandatory boolean
+}
+
+TABLE employees {
+  employee_id integer [pk]
+  employee_code integer [unique]
+  name varchar
+  email varchar
+  phone varchar
+  date_of_joining date
+  status_id integer [ref: > status.status_id]
+  employment_type_id integer [ref: > employment_types.employment_type_id]
+}
+
+TABLE departments {
+  dept_id integer [pk]
+  name varchar
+  cost_center integer
+  manager_id integer [ref: > employees.employee_id]
+}
+
+TABLE employee_reporting {
+  employee_reporting_id integer [pk]
+  employee_id integer [ref: > employees.employee_id]
+  reports_to_employee_id integer [ref: > employees.employee_id]
+  effective_from date
+  effective_to date
+}
+
+TABLE employee_roles {
+  employee_role_id integer [pk]
+  role_id integer [ref: > roles.role_id]
+  employee_id integer [ref: > employees.employee_id]
+  effective_from date
+  effective_to date
+  primary_role boolean
+}
+
+TABLE employee_locations {
+  employee_location_id integer [pk]
+  location_id integer [ref: > locations.location_id]
+  employee_id integer [ref: > employees.employee_id]
+  effective_from date
+  effective_to date
+}
+
+TABLE compensation_records {
+  compensation_record_id integer [pk]
+  employee_id integer [ref: > employees.employee_id]
+  basic integer
+  hra integer
+  allowances integer
+  bonuses integer
+  effective_from date
+  effective_to date
+}
+
+TABLE attendance {
+  attendance_id integer [pk]
+  employee_id integer [ref: > employees.employee_id]
+  attendance_date date
+  work_type_id integer [ref: > work_types.work_type_id]
+}
+
+TABLE leave_requests {
+  leave_request_id integer [pk]
+  employee_id integer [ref: > employees.employee_id]
+  leave_type_id integer [ref: > leave_types.leave_type_id]
+  leave_from date
+  leave_to date
+  approval_status_id integer [ref: > approval_status.approval_status_id]
+  approver_id integer [ref: > employees.employee_id]
+}
+
+TABLE assets {
+  asset_id integer [pk]
+  asset_name varchar
+  serial_number varchar [unique]
+}
+
+TABLE employee_assets {
+  employee_asset_id integer [pk]
+  asset_id integer [ref: > assets.asset_id]
+  employee_id integer [ref: > employees.employee_id]
+  issue_date date
+  return_date date
+}
+
+TABLE cycles {
+  cycle_id integer [pk]
+  cycle_name varchar
+  start_date date
+  end_date date
+}
+
+TABLE performance_reviews {
+  review_id integer [pk]
+  employee_id integer [ref: > employees.employee_id]
+  cycle_id integer [ref: > cycles.cycle_id]
+  reviewer_id integer [ref: > employees.employee_id]
+  rating decimal
+  comments varchar
+  goals varchar
+}
+
+TABLE employee_trainings {
+  employee_training_id integer [pk]
+  employee_id integer [ref: > employees.employee_id]
+  training_id integer [ref: > trainings.training_id]
+  assigned_date date
+  completion_date date
+  status_id integer [ref: > training_status.status_id]
+}
+
+TABLE training_certifications {
+  training_certificate_id integer [pk]
+  employee_training_id integer [ref: > employee_trainings.employee_training_id]
+  certificate_number varchar
+  issue_date date
+  expiry_date date
+}
+
+TABLE employee_compliance_documents {
+  employee_compliance_document_id integer [pk]
+  document_type_id integer [ref: > document_types.document_type_id]
+  employee_id integer [ref: > employees.employee_id]
+  storage_ref varchar
+  signed_date date
+  expiry_date date
+}
+
+TABLE separation_details {
+  separation_id integer [pk]
+  employee_id integer [ref: > employees.employee_id]
+  resignation_date date
+  last_working_day date
+  exit_reason varchar
+  fnf_status_id integer [ref: > fnf_status.fnf_status_id]
+}
+
+TABLE assets_return {
+  asset_return_id integer [pk]
+  separation_id integer [ref: > separation_details.separation_id]
+  asset_id integer [ref: > assets.asset_id]
+  return_date date
+}
+
+TABLE access_groups {
+  access_group_id integer [pk]
+  access_group_name varchar
+  system_id integer [ref: > systems.system_id]
+}
+
+TABLE employee_access_groups {
+  employee_access_group_id integer [pk]
+  employee_id integer [ref: > employees.employee_id]
+  access_group_id integer [ref: > access_groups.access_group_id]
+  start_date date
+  end_date date
+}
+
+TABLE employee_skill_proficiency {
+  employee_skill_proficiency_id integer [pk]
+  employee_id integer [ref: > employees.employee_id]
+  skill_id integer [ref: > skills.skill_id]
+  proficiency_level_id integer [ref: > proficiency_levels.proficiency_level_id]
+  years_of_experience integer
+}
+
+TABLE contractor_details {
+  contractor_details_id integer [pk]
+  employee_id integer [ref: > employees.employee_id]
+  vendor_id integer [ref: > vendors.vendor_id]
+}
