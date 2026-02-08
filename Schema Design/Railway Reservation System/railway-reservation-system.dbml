@@ -1,0 +1,264 @@
+TABLE stations{
+  station_id integer [pk]
+  station_code varchar [unique, not null]
+  station_name varchar
+  city varchar
+  state varchar
+  latitude decimal(9,6)
+  longitude decimal(9,6)
+}
+
+TABLE trains{
+  train_id integer [pk]
+  train_number varchar [unique, not null]
+  train_name varchar 
+  operator_name varchar
+  train_service_type_id integer
+}
+
+TABLE train_service_type{
+  train_service_type_id integer [pk]
+  train_service_name varchar
+}
+
+TABLE route_stops{
+  route_stop_id integer [pk]
+  station_id integer
+  train_id integer
+  arrival_time time
+  departure_time time
+  stop_sequence integer
+  day_offset integer
+}
+
+TABLE scheduled_train_runs{
+  scheduled_train_run_id integer [pk]
+  train_id integer
+  run_date date
+  calendar_exception_id integer
+}
+
+TABLE calendar_exceptions{
+  calendar_exception_id integer [pk]
+  calendar_exception varchar
+}
+
+TABLE coaches{
+  coach_id integer [pk]
+  scheduled_train_run_id integer
+  coach_type varchar 
+  coach_sequence integer
+}
+
+TABLE coach_type_berth{
+  coach_type_berth_id integer [pk]
+  coach_type varchar
+  berth_number integer
+  berth_type varchar
+  position varchar
+  quota varchar 
+}
+
+TABLE fare_rules{
+  fare_rule_id integer [pk]
+  coach_type varchar
+  min_distance_km integer 
+  max_distance_km integer
+  quota varchar
+  base_fare integer
+}
+
+TABLE fare_snapshot{
+  fare_snapshot_id integer [pk]
+  booking_id integer
+  coach_type varchar
+  distance_km integer
+  quota varchar
+  final_fare_amount integer
+}
+
+TABLE users{
+  user_id integer [pk]
+  user_name varchar
+  contact_number varchar
+}
+
+TABLE pnr_bookings{
+  pnr_id integer [pk]
+  user_id integer
+  pnr_number varchar [unique]
+  origin_station_id integer
+  destination_station_id integer
+  travel_date date
+  class varchar
+  quota varchar
+}
+
+TABLE passengers{
+  passenger_id integer [pk]
+  pnr_id integer 
+  passenger_name varchar
+  age integer
+  gender varchar
+  berth_preference varchar
+  id_proof_type varchar
+  concession_type_id integer
+}
+
+TABLE concession_types{
+  concession_type_id integer [pk]
+  concession_type varchar
+}
+
+TABLE booking_status_types{
+  booking_status_type_id integer [pk]
+  booking_status_name varchar
+}
+
+TABLE passenger_booking_status{
+  passenger_booking_status_id integer [pk]
+  passenger_id integer
+  booking_status_type_id integer
+  rac_position integer
+  waitlist_position integer
+}
+
+TABLE seat_allocations{
+  seat_allocation_id integer [pk]
+  passenger_id integer
+  coach_id integer
+  berth_number integer
+  allocation_status varchar
+}
+
+TABLE payments{
+  payment_id integer [pk]
+  pnr_id integer
+  transaction_id varchar
+  payment_mode varchar
+  payment_status varchar
+  paid_amount integer
+  payment_time datetime
+}
+
+TABLE refunds{
+  refund_id integer [pk]
+  payment_id integer
+  refund_amount integer
+  cancellation_charge integer
+  refund_status varchar
+  refund_time datetime
+}
+
+TABLE cancellation_charge_rules{
+  cancellation_charge_rule_id integer [pk]
+  min_hours_before_departure integer
+  max_hours_before_departure integer
+  charge_percentage integer
+}
+
+TABLE boarding_point_changes{
+  boarding_point_change_id integer [pk]
+  passenger_id integer
+  old_boarding_station_id integer
+  new_boarding_station_id integer
+  change_time datetime
+}
+
+TABLE charts{
+  chart_id integer [pk]
+  scheduled_train_run_id integer
+  chart_prepared_time datetime
+  chart_status varchar
+}
+
+TABLE chart_passengers{
+  chart_passenger_id integer [pk]
+  chart_id integer
+  passenger_id integer
+  coach_id integer
+  berth_number integer
+  booking_status varchar
+}
+
+TABLE operational_disruptions{
+  operational_disruption_id integer [pk]
+  scheduled_train_run_id integer
+  disruption_type varchar
+  disruption_reason varchar
+  disruption_time datetime
+}
+
+TABLE affected_bookings{
+  affected_booking_id integer [pk]
+  pnr_id integer
+  operational_disruption_id integer
+  resolution_type varchar
+  resolution_time datetime
+}
+
+TABLE audit_logs {
+  audit_log_id integer [pk]
+  entity_type varchar        
+  entity_id integer       
+  action varchar
+  operator_id integer
+  operator_type varchar
+  action_time datetime
+}
+
+
+
+ref: trains.train_service_type_id > train_service_type.train_service_type_id
+
+ref: route_stops.station_id > stations.station_id
+
+ref: route_stops.train_id > trains.train_id
+
+ref: scheduled_train_runs.train_id > trains.train_id
+
+ref: scheduled_train_runs.calendar_exception_id > calendar_exceptions.calendar_exception_id
+
+ref: coaches.scheduled_train_run_id > scheduled_train_runs.scheduled_train_run_id
+
+ref: pnr_bookings.user_id > users.user_id
+
+ref: pnr_bookings.origin_station_id > stations.station_id
+
+ref: pnr_bookings.destination_station_id > stations.station_id
+
+ref: passengers.pnr_id > pnr_bookings.pnr_id
+
+ref: passengers.concession_type_id > concession_types.concession_type_id
+
+ref: passenger_booking_status.passenger_id > passengers.passenger_id
+
+ref: passenger_booking_status.booking_status_type_id > booking_status_types.booking_status_type_id
+
+ref: seat_allocations.passenger_id > passengers.passenger_id
+
+ref: seat_allocations.coach_id > coaches.coach_id
+
+ref: payments.pnr_id > pnr_bookings.pnr_id
+
+ref: refunds.payment_id > payments.payment_id
+
+ref: boarding_point_changes.passenger_id > passengers.passenger_id
+
+ref: boarding_point_changes.old_boarding_station_id > stations.station_id
+
+ref: boarding_point_changes.new_boarding_station_id > stations.station_id
+
+ref: charts.scheduled_train_run_id > scheduled_train_runs.scheduled_train_run_id
+
+ref: chart_passengers.chart_id > charts.chart_id
+
+ref: chart_passengers.passenger_id > passengers.passenger_id
+
+ref: chart_passengers.coach_id > coaches.coach_id
+
+ref: operational_disruptions.scheduled_train_run_id > scheduled_train_runs.scheduled_train_run_id
+
+ref: affected_bookings.pnr_id > pnr_bookings.pnr_id
+
+ref: affected_bookings.operational_disruption_id > operational_disruptions.operational_disruption_id
