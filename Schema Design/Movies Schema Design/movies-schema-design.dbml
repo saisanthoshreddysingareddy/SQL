@@ -1,0 +1,30 @@
+TABLE movies{
+  movie_id integer [pk]
+  movie_title varchar
+  release_year integer
+  director_id integer
+}
+
+TABLE directors{
+  director_id integer [pk]
+  director_name varchar
+}
+
+TABLE actors{
+  actor_id integer [pk]
+  actor_name varchar
+}
+
+TABLE movie_actors{
+  movie_actor_id integer [pk]
+  movie_id integer
+  actor_id integer
+  indexes {
+    (movie_id, actor_id) [unique]
+  }
+}
+ref: movies.director_id > directors.director_id
+
+ref: movie_actors.movie_id > movies.movie_id
+
+ref: movie_actors.actor_id > actors.actor_id
