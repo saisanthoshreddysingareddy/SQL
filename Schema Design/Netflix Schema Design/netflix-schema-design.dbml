@@ -1,0 +1,64 @@
+TABLE users{
+  user_id integer [pk]
+  email varchar
+  password varchar
+}
+
+TABLE profiles{
+  profile_id integer [pk]
+  profile_name varchar
+  profile_type_id integer
+  user_id integer
+}
+
+TABLE profile_types{
+  profile_type_id integer [pk]
+  profile_type_name varchar
+}
+
+TABLE videos{
+  video_id integer [pk]
+  video_title varchar
+  description text
+}
+
+TABLE actors{
+  actor_id integer [pk]
+  actor_name varchar
+}
+
+TABlE video_cast{
+  video_cast_id integer [pk]
+  video_id integer 
+  actor_id integer
+}
+
+TABLE profile_video_status{
+  profile_video_status_id integer [pk]
+  profile_id integer
+  video_id integer
+  watch_status_id integer
+  last_watch_timestamp timestamp
+  indexes {
+    (profile_id, video_id) [unique]
+  }
+}
+
+TABLE watch_status{
+  watch_status_id integer [pk]
+  watch_status varchar
+}
+
+ref: profiles.profile_type_id > profile_types.profile_type_id
+
+ref: profiles.user_id > users.user_id
+
+ref: video_cast.video_id > videos.video_id
+
+ref: video_cast.actor_id > actors.actor_id
+
+ref: profile_video_status.profile_id > profiles.profile_id
+
+ref: profile_video_status.video_id > videos.video_id
+
+ref: profile_video_status.watch_status_id > watch_status.watch_status_id
